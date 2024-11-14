@@ -19,7 +19,7 @@ const router = createRouter({
                     component: () => import("../pages/Home.vue"),
                 },
                 {
-                    path: "/blogadd",
+                    path: "/blogedit",
                     name: "Edit",
                     component: () => import("../pages/BlogAdd.vue"),
                 },

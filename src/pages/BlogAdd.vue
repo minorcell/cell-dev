@@ -1,21 +1,26 @@
 <script setup>
 import '@wangeditor/editor/dist/css/style.css'
-import { onBeforeUnmount, ref, shallowRef } from 'vue'
+import { onBeforeUnmount, ref, shallowRef, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import { uploadServer } from '../api/file'
 import { ElMessage } from 'element-plus'
-import { uploadBlog, getTypesServer } from '../api/blog'
+import { uploadBlog, getTypesServer, getBlogDetailServer, updateBlogServer } from '../api/blog'
 
 const editorRef = shallowRef()
+const router = useRoute()
 const blogInfo = ref({
     title: "",
     type: "",
     intro: "",
     cover: "",
-    content: ""
+    content: "",
+    status: "editing"
 })
 const drawer = ref(false)
 const blogTypes = ref([])
+const modol = ref("add")
+const blogId = ref(router.query.id);
 
 const toolbarConfig = {
     excludeKeys: [
@@ -27,7 +32,7 @@ const toolbarConfig = {
 }
 
 const editorConfig = {
-    placeholder: '请输入内容...',
+    placeholder: '请在此输入内容...',
     MENU_CONF: {
         "uploadImage": {
             maxNumberOfFiles: 1,
@@ -64,25 +69,36 @@ const editorConfig = {
     }
 }
 
+async function getBlogDetail(id) {
+    try {
+        const res = await getBlogDetailServer(id);
+        const { title, type, intro, cover, content } = res.data.data
+        blogInfo.value = { title, type, intro, cover, content }
+        ElMessage({
+            message: '获取博客详情成功！',
+            icon: "none"
+        })
+    } catch {
+        ElMessage({
+            message: '获取博客详情失败！',
+            icon: "none"
+        })
+    }
+}
+
+onMounted(() => {
+    if (router.query.id) {
+        getBlogDetail(router.query.id)
+        modol.value = "update"
+        blogId.value = router.query.id;
+    }
+})
+
 onBeforeUnmount(() => {
     const editor = editorRef.value
     if (editor == null) return
     editor.destroy()
 })
-
-const savaAsDraft = () => {
-    if (blogInfo.value.title == "") {
-        ElMessage({
-            message: "请输入标题之后再暂存！",
-            type: 'warning',
-        });
-        return;
-    }
-    ElMessage({
-        message: "暂存成功！",
-        type: 'success',
-    });
-}
 
 const getTypes = async () => {
     const res = await getTypesServer();
@@ -111,12 +127,36 @@ const beforeAvatarUpload = (rawFile) => {
     return true;
 };
 
+const updateBlog = async () => {
+    const { title, type, intro, cover, content } = blogInfo.value;
+    if (!title || !type || !intro || !cover || !content) {
+        ElMessage({
+            message: '请填写完整信息后再更新！',
+            icon: "none"
+        });
+        return;
+    }
+    try {
+        await updateBlogServer({ id: blogId.value, title, type, intro, cover, content });
+        ElMessage({
+            message: '更新成功！',
+            icon: "none"
+        });
+        drawer.value = false;
+    } catch {
+        ElMessage({
+            message: '更新失败，请稍后再试！',
+            icon: "none"
+        });
+    }
+}
+
 const sendToBlog = async () => {
     const { title, type, intro, cover, content } = blogInfo.value;
     if (!title || !type || !intro || !cover || !content) {
         ElMessage({
             message: '请填写完整信息后再发布！',
-            type: 'warning',
+            icon: "none"
         });
         return;
     }
@@ -126,12 +166,11 @@ const sendToBlog = async () => {
             message: '发布成功！',
             type: 'success',
         });
-        blogInfo.value = { title: '', type: '', intro: '', cover: '', content: '' };
         drawer.value = false;
     } catch {
         ElMessage({
             message: '发布失败，请稍后再试！',
-            type: 'error',
+            icon: "none"
         });
     }
 };
@@ -143,7 +182,6 @@ const handleCreated = (editor) => {
 const handleDrawerClose = () => {
     drawer.value = false
 }
-
 </script>
 
 <template>
@@ -152,16 +190,13 @@ const handleDrawerClose = () => {
             <div class="w-full flex items-center justify-center px-4 bg-white border-b border-gray-200">
                 <Toolbar :editor="editorRef" :defaultConfig="toolbarConfig" mode="default" />
                 <span class="block h-full w-[1px] bg-gray-200 mr-4" />
-                <el-button @click="drawer = true" text bg>发布</el-button>
-                <el-button @click="savaAsDraft" text bg>存稿</el-button>
+                <el-button @click="drawer = true" text bg>{{ modol === 'add' ? "发布" : "更新" }}</el-button>
             </div>
             <div class="w-full h-[1px] bg-gray-200"></div>
         </div>
-        <div class="w-3/5 h-[80vh] mt-12">
-            <input type="text" placeholder="请输入标题..." v-model="blogInfo.title"
-                class="border-none py-5 px-2 w-full text-3xl focus:outline-none outline-none" autofocus>
-            <Editor class="min-h-[75vh] pb-8" v-model="blogInfo.content" :defaultConfig="editorConfig" mode="default"
-                @onCreated="handleCreated" />
+        <div class="w-3/5 h-[85vh] mt-8 flex items-center justify-center">
+            <Editor class="w-full min-h-[80vh] pb-[6vh]" v-model="blogInfo.content" :defaultConfig="editorConfig"
+                mode="default" @onCreated="handleCreated" />
         </div>
         <el-drawer v-model="drawer" title="发布博客内容" size="50%" direction="rtl" @close="handleDrawerClose"
             class="bg-gray-50 text-gray-700 p-6">
@@ -174,12 +209,15 @@ const handleDrawerClose = () => {
                     <el-form-item label="类型">
                         <el-select name="type" class="w-full p-2 rounded-md border-none focus:outline-none" clearable
                             v-model="blogInfo.type">
-                            <el-option v-for="item in blogTypes" :key="item" :label="item" :value="item" />
+                            <el-option v-for="item in blogTypes" :key="item.type" :label="item.type" :value="item.type">
+                                <span>{{ item.type }} —— (已有{{ item.count }}篇)</span>
+                            </el-option>
                             <template #footer>
                                 <el-input v-model="blogInfo.type" placeholder="请输入新的文章类型" />
                             </template>
                         </el-select>
                     </el-form-item>
+
                     <el-form-item label="简介">
                         <el-input type="textarea" autosize v-model="blogInfo.intro" placeholder="请输入文章简介"
                             class="w-full focus:outline-none rounded-md p-2" />
@@ -193,7 +231,8 @@ const handleDrawerClose = () => {
                         </el-upload>
                     </el-form-item>
                     <el-form-item class="flex justify-center">
-                        <el-button text bg class="w-full" @click="sendToBlog">发布至博客</el-button>
+                        <el-button text bg class="w-full" @click="sendToBlog" v-if="modol === 'add'">发布博客</el-button>
+                        <el-button text bg class="w-full" @click="updateBlog" v-else>更新博客</el-button>
                     </el-form-item>
                 </el-form>
             </div>

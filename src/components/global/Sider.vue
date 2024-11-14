@@ -14,9 +14,9 @@
                 <el-icon><span class="icon-[material-symbols--list]"></span></el-icon>
                 <span class="ml-2">文章管理</span>
             </el-menu-item>
-            <el-menu-item index="2-2" @click="navigateTo('/blogadd')">
+            <el-menu-item index="2-2" @click="navigateTo('/blogedit')">
                 <el-icon><span class="icon-[ri--article-line]"></span></el-icon>
-                <span class="ml-2">添加文章</span>
+                <span class="ml-2">编辑台</span>
             </el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="3">

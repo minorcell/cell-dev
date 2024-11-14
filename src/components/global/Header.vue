@@ -33,7 +33,7 @@ const toggleSidebar = () => {
 const pathMap = {
     '/': '分析面板',
     '/blogcate': '文章管理',
-    '/blogadd': '添加文章',
+    '/blogedit': '编辑台',
     '/workcate': '作品管理',
     '/workadd': '添加作品',
     '/usercate': '用户管理',
