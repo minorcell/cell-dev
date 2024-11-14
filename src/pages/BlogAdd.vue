@@ -1,15 +1,19 @@
 <script setup>
 import '@wangeditor/editor/dist/css/style.css'
-import { onBeforeUnmount, ref, shallowRef, h } from 'vue'
+import { onBeforeUnmount, ref, shallowRef } from 'vue'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import ViewRes from "../components/blog/ViewRes.vue"
-
-import { uploadServer } from '../api/file';
-
-import { ElNotification } from 'element-plus'
+import { uploadServer } from '../api/file'
+import { ElMessage } from 'element-plus'
 
 const editorRef = shallowRef()
-const valueHtml = ref('')
+const blogInfo = ref({
+    title: "",
+    type: "",
+    intro: "",
+    cover: "",
+    content: ""
+})
 const drawer = ref(false)
 
 const toolbarConfig = {
@@ -20,13 +24,14 @@ const toolbarConfig = {
         "todo"
     ]
 }
+
 const editorConfig = {
     placeholder: '请输入内容...',
     MENU_CONF: {
         "uploadImage": {
             maxNumberOfFiles: 1,
             async customUpload(file, inserFn) {
-                console.log(file);
+                console.log(file)
 
                 if (!file.type.includes("image")) {
                     ElMessage({
@@ -67,12 +72,11 @@ onBeforeUnmount(() => {
 })
 
 const savaAsDraft = () => {
-    ElNotification({
-        title: 'Title',
-        message: h('i', { style: 'color: teal' }, 'This is a reminder'),
-        type: 'success',
-        position: "top-left"
-    })
+    if (blogInfo.value.title == "") {
+        ElMessage("请输入标题之后再暂存！")
+        return
+    }
+    ElMessage("暂存成功！")
 }
 
 const handleCreated = (editor) => {
@@ -91,20 +95,20 @@ const handleDrawerClose = () => {
                 <Toolbar :editor="editorRef" :defaultConfig="toolbarConfig" mode="default" />
                 <span class="block h-full w-[1px] bg-gray-200 mr-4" />
                 <el-tooltip effect="dark" content="发布到前台博客，点击开打更多操作。" placement="bottom">
-                    <el-button @click="drawer = true">发布</el-button>
+                    <el-button @click="drawer = true" text bg>发布</el-button>
                 </el-tooltip>
                 <el-tooltip effect="dark" content="暂时保存为草稿，方便接续编辑。" placement="bottom">
-                    <el-button @click="savaAsDraft">存稿</el-button>
+                    <el-button @click="savaAsDraft" text bg>存稿</el-button>
                 </el-tooltip>
             </div>
             <div class="w-full h-[1px] bg-gray-200"></div>
         </div>
         <div class="w-3/5 h-[80vh] mt-12">
-            <input type="text" placeholder="请输入标题..."
+            <input type="text" placeholder="请输入标题..." v-model="blogInfo.value.title"
                 class="border-none py-5 px-2 w-full text-3xl focus:outline-none outline-none" autofocus>
-            <Editor class="min-h-[75vh] pb-8" v-model="valueHtml" :defaultConfig="editorConfig" mode="default"
-                @onCreated="handleCreated" />
+            <Editor class="min-h-[75vh] pb-8" v-model="blogInfo.value.content" :defaultConfig="editorConfig"
+                mode="default" @onCreated="handleCreated" />
         </div>
-        <ViewRes :drawer="drawer" :htmlString="valueHtml" @closeDrawer="handleDrawerClose" />
+        <ViewRes :drawer="drawer" :blogInfo="blogInfo.value" @closeDrawer="handleDrawerClose" />
     </div>
 </template>
