@@ -1,5 +1,5 @@
 <template>
-    <el-menu :collapse="isCloseable" default-active="1" class="w-48 h-full select-none">
+    <el-menu :collapse="isCloseable" default-active="1" class="w-48 h-full select-none custom-menu">
         <h5 class="p-4 flex justify-center items-center text-2xl font-bold">CELL DEV</h5>
         <el-menu-item index="1" @click="navigateTo('/')">
             <el-icon><span class="icon-[ri--dashboard-2-line]"></span></el-icon>
@@ -33,7 +33,6 @@
                 <span class="ml-2">添加作品</span>
             </el-menu-item>
         </el-sub-menu>
-
         <el-menu-item index="4" @click="navigateTo('/usercate')">
             <el-icon><span class="icon-[solar--user-outline]"></span></el-icon>
             <span class="ml-2">用户管理</span>
@@ -58,5 +57,11 @@ const props = defineProps({
 const navigateTo = (path) => {
     router.push(path);
 };
-
 </script>
+
+<style scoped>
+.custom-menu {
+    --el-menu-active-color: black;
+    --el-menu-text-color: rgb(107 114 128);
+}
+</style>
