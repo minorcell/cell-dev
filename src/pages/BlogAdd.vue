@@ -1,11 +1,12 @@
 <script setup>
 import '@wangeditor/editor/dist/css/style.css'
-import { onBeforeUnmount, ref, shallowRef, onMounted } from 'vue'
+import { onBeforeUnmount, ref, shallowRef, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import { uploadServer } from '../api/file'
 import { ElMessage } from 'element-plus'
 import { uploadBlog, getTypesServer, getBlogDetailServer, updateBlogServer } from '../api/blog'
+import { handleTime } from '../utils/tools'
 
 const editorRef = shallowRef()
 const router = useRoute()
@@ -15,7 +16,8 @@ const blogInfo = ref({
     intro: "",
     cover: "",
     content: "",
-    status: "editing"
+    status: "editing",
+    update_time: "",
 })
 const drawer = ref(false)
 const blogTypes = ref([])
@@ -72,27 +74,14 @@ const editorConfig = {
 async function getBlogDetail(id) {
     try {
         const res = await getBlogDetailServer(id);
-        const { title, type, intro, cover, content } = res.data.data
-        blogInfo.value = { title, type, intro, cover, content }
-        ElMessage({
-            message: '获取博客详情成功！',
-            icon: "none"
-        })
+        const { title, type, intro, cover, content, update_time } = res.data.data
+        blogInfo.value = { title, type, intro, cover, content, update_time }
     } catch {
         ElMessage({
-            message: '获取博客详情失败！',
-            icon: "none"
+            message: '获取博客详情失败！'
         })
     }
 }
-
-onMounted(() => {
-    if (router.query.id) {
-        getBlogDetail(router.query.id)
-        modol.value = "update"
-        blogId.value = router.query.id;
-    }
-})
 
 onBeforeUnmount(() => {
     const editor = editorRef.value
@@ -113,14 +102,12 @@ const handleAvatarSuccess = (res) => {
 const beforeAvatarUpload = (rawFile) => {
     if (!rawFile.type.startsWith('image/')) {
         ElMessage({
-            message: '必须是图片!',
-            type: 'error',
+            message: '必须是图片!'
         });
         return false;
     } else if (rawFile.size / 1024 / 1024 > 1) {
         ElMessage({
-            message: '必须是小于1MB的图片!',
-            type: 'error',
+            message: '必须是小于1MB的图片!'
         });
         return false;
     }
@@ -128,25 +115,24 @@ const beforeAvatarUpload = (rawFile) => {
 };
 
 const updateBlog = async () => {
+
     const { title, type, intro, cover, content } = blogInfo.value;
     if (!title || !type || !intro || !cover || !content) {
         ElMessage({
-            message: '请填写完整信息后再更新！',
-            icon: "none"
+            message: '请填写完整信息后再更新！'
         });
         return;
     }
     try {
         await updateBlogServer({ id: blogId.value, title, type, intro, cover, content });
         ElMessage({
-            message: '更新成功！',
-            icon: "none"
+            message: '更新成功！'
         });
         drawer.value = false;
+        getBlogDetail(blogId.value);
     } catch {
         ElMessage({
-            message: '更新失败，请稍后再试！',
-            icon: "none"
+            message: '更新失败，请稍后再试！'
         });
     }
 }
@@ -155,8 +141,7 @@ const sendToBlog = async () => {
     const { title, type, intro, cover, content } = blogInfo.value;
     if (!title || !type || !intro || !cover || !content) {
         ElMessage({
-            message: '请填写完整信息后再发布！',
-            icon: "none"
+            message: '请填写完整信息后再发布！'
         });
         return;
     }
@@ -164,13 +149,11 @@ const sendToBlog = async () => {
         await uploadBlog({ title, type, intro, cover, content });
         ElMessage({
             message: '发布成功！',
-            type: 'success',
         });
         drawer.value = false;
     } catch {
         ElMessage({
-            message: '发布失败，请稍后再试！',
-            icon: "none"
+            message: '发布失败，请稍后再试！'
         });
     }
 };
@@ -182,14 +165,39 @@ const handleCreated = (editor) => {
 const handleDrawerClose = () => {
     drawer.value = false
 }
+
+const handleKeydown = (event) => {
+    if (event.ctrlKey && event.key === "s") {
+        event.preventDefault();
+        if (modol != "add") {
+            updateBlog();
+        }
+    }
+}
+
+onMounted(() => {
+    if (router.query.id) {
+        getBlogDetail(router.query.id)
+        modol.value = "update"
+        blogId.value = router.query.id;
+    }
+    document.addEventListener("keydown", handleKeydown);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener("keydown", handleKeydown);
+});
+
 </script>
 
 <template>
     <div class="h-full w-full flex flex-col items-center overflow-y-auto">
         <div class="z-10 w-full flex flex-col items-center justify-center sticky top-0">
-            <div class="w-full flex items-center justify-center px-4 bg-white border-b border-gray-200">
+            <div class="w-full flex items-center justify-evenly px-4 bg-white border-b border-gray-200">
+                <el-button text v-if="modol !== 'add'">更新于：{{ handleTime(blogInfo.update_time) }}</el-button>
+                <span v-if="modol !== 'add'" class="block h-full w-[1px] bg-gray-200" />
                 <Toolbar :editor="editorRef" :defaultConfig="toolbarConfig" mode="default" />
-                <span class="block h-full w-[1px] bg-gray-200 mr-4" />
+                <span class="block h-full w-[1px] bg-gray-200" />
                 <el-button @click="drawer = true" text bg>{{ modol === 'add' ? "发布" : "更新" }}</el-button>
             </div>
             <div class="w-full h-[1px] bg-gray-200"></div>

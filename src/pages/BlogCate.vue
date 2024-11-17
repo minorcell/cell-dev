@@ -9,6 +9,7 @@ import {
 } from '../api/blog'
 
 import { handleTime } from "../utils/tools"
+
 const tableData = ref([])
 const isloading = ref(false)
 const SearchParams = ref({
@@ -73,13 +74,11 @@ const handleDelete = async (id) => {
         await deleteBlogServer(id)
         ElMessage({
             message: '删除成功！',
-            icon: "none"
         })
         getBlogs()
     } catch {
         ElMessage({
             message: '删除失败！',
-            icon: "none"
         })
     } finally {
         isloading.value = false
@@ -89,6 +88,11 @@ const handleDelete = async (id) => {
 onMounted(() => {
     getBlogs()
 })
+
+const intro = (value) => {
+    value.length > 50 && (value = value.slice(0, 50) + '...')
+    return value
+}
 </script>
 
 <template>
@@ -96,29 +100,39 @@ onMounted(() => {
         <div class="h-full w-[90vw] flex flex-col items-center">
             <div class="w-full h-16 bg-slate-100 rounded">
             </div>
-            <el-table :data="tableData" style="height: 85%; width: 100%; overflow-y: auto;" v-loading="isloading">
-                <el-table-column prop="id" label="ID" width="100" />
-                <el-table-column prop="title" label="标题" width="300" />
-                <el-table-column prop="type" label="类型" width="200" />
-                <el-table-column prop="intro" label="简介" width="500" />
-                <el-table-column prop="looks" label="浏览量" width="150" />
-                <el-table-column prop="status" label="编辑中/已发布" width="200">
+            <el-table :data="tableData" style="height: 85%; width: 100%; overflow-y: auto;" v-loading="isloading"
+                table-layout="auto">
+                <el-table-column prop="id" label="ID" />
+                <el-table-column prop="title" label="标题" />
+                <el-table-column prop="type" label="类型">
+                    <template #default="scope">
+                        <el-tag effect="info">{{ scope.row.type }}</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="intro" label="简介">
+                    <template #default="scope">
+                        <span>{{ intro(scope.row.intro) }}</span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="looks" label="浏览量" />
+                <el-table-column prop="status" label="编辑中/已发布">
                     <template #default="scope">
                         <el-switch v-model="scope.row.isPublished" @change="handleSwitch($event, scope.row.id)"
                             style="--el-switch-on-color: #606266; --el-switch-off-color: lightgray" />
                     </template>
                 </el-table-column>
-                <el-table-column prop="update_time" label="更新时间" width="250">
+                <el-table-column prop="update_time" label="更新时间">
                     <template #default="scope">
                         <span>{{ handleTime(scope.row.update_time) }}</span>
                     </template>
                 </el-table-column>
-                <el-table-column fixed="right" label="操作" width="150">
+                <el-table-column fixed="right" label="操作">
                     <template #default="scope">
-                        <el-button link type="primary" size="small" @click="toEdit(scope.row.id)">
+                        <el-button text bg size="small" @click="toEdit(scope.row.id)">
                             编辑
                         </el-button>
-                        <el-popconfirm title="确定删除吗?" @confirm="handleDelete(scope.row.id)">
+                        <el-popconfirm title="确定删除吗?" @confirm="handleDelete(scope.row.id)" hide-icon
+                            cancel-button-type="info" confirm-button-type="info">
                             <template #reference><el-button text bg size="small">
                                     删除
                                 </el-button></template>

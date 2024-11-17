@@ -16,3 +16,27 @@ export const handleTime = (time) => {
 
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`
 }
+
+export const debounce = (fn, delay, immediate = false) => {
+    let timer = null;
+    return function () {
+        const args = arguments;
+        const context = this;
+
+        if (immediate) {
+            const callNow = !timer;
+            if (callNow) {
+                fn.apply(context, args);
+            }
+        }
+
+        clearTimeout(timer);
+
+        timer = setTimeout(() => {
+            if (!immediate) {
+                fn.apply(context, args);
+            }
+            timer = null;
+        }, delay);
+    };
+};

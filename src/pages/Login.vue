@@ -56,9 +56,8 @@ const register = () => {
 
 <template>
     <div class="min-h-screen flex flex-col justify-center items-center bg-gray-200">
-        <div class="text-center mb-6 text-3xl font-bold text-gray-700">
-            <h1>CELL DEV & 细胞工作台</h1>
-            <p>智能化AI工作台</p>
+        <div class="w-full top-0 fixed h-14">
+            <h1 class="text-2xl ml-4">CELL DEV | 细胞工作台</h1>
         </div>
         <div class="w-full max-w-md p-6 bg-white shadow-lg h-[33vh] flex flex-col">
             <div class="flex justify-between mb-4">
@@ -84,10 +83,14 @@ const register = () => {
                         <input type="password" id="password"
                             class="w-full py-3 bg-transparent border-none focus:outline-none"
                             v-model="loginForm.password" placeholder="请输入密码" />
-                    </div>
-                    <div class="flex items-center justify-between">
                         <button type="submit" class="w-full px-4 py-2 bg-global text-white cursor-pointer"
                             @click.prevent="login">点击登录</button>
+                    </div>
+                    <span class="w-full block h-[1px] bg-global"></span>
+                    <div>
+                        <button type="submit"
+                            class="w-full px-4 py-2 bg-black text-white cursor-pointer flex items-center justify-center"
+                            @click.prevent="login"><span class="icon-[mdi--github] scale-150 mr-4" />使用GitHub登录</button>
                     </div>
                 </form>
             </div>
@@ -114,5 +117,8 @@ const register = () => {
                 </form>
             </div>
         </div>
+        <footer class="w-full fixed bottom-0 p-1">
+            <p class="text-center text-gray-500 mt-8">© 2024 CELL DEV. All rights reserved.</p>
+        </footer>
     </div>
 </template>

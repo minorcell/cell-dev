@@ -37,7 +37,8 @@ const pathMap = {
     '/workcate': '作品管理',
     '/workadd': '添加作品',
     '/usercate': '用户管理',
-    '/botcate': 'Bot管理'
+    '/botcate': 'Bot管理',
+    '/user': '用户中心',
 };
 
 

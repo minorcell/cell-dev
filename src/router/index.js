@@ -48,6 +48,11 @@ const router = createRouter({
                     path: "/botcate",
                     name: "BotCate",
                     component: () => import("../pages/BotCate.vue"),
+                },
+                {
+                    path: "/user",
+                    name: "User",
+                    component: () => import("../pages/UserCenter.vue")
                 }
             ],
         }
