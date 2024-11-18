@@ -35,8 +35,7 @@ const pathMap = {
     '/blogcate': '文章管理',
     '/blogedit': '编辑台',
     '/workcate': '作品管理',
-    '/workadd': '添加作品',
-    '/usercate': '用户管理',
+    '/workadd': '作品编辑',
     '/botcate': 'Bot管理',
     '/user': '用户中心',
 };

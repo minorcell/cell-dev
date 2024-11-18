@@ -17,7 +17,7 @@ const handleLoginOut = () => {
 </script>
 
 <template>
-    <div class="p-6 select-none h-[90vh] overflow-y-auto">
+    <div class="p-6 select-none h-[89vh] overflow-y-auto">
         <div class="flex items-center">
             <el-avatar :src="user.avatar" :size="75" shape="square" />
             <div class="ml-4 h-full flex flex-col justify-between">
@@ -43,16 +43,18 @@ const handleLoginOut = () => {
                 <span class="text-global">编程语言：</span>
                 <el-tag v-for="item in user.languages" :key="item" class="mr-3" effect="plain" type="info">{{
                     item
-                    }}</el-tag>
+                }}</el-tag>
             </p>
 
             <el-collapse v-model="activeName" accordion>
                 <el-collapse-item :name="index + 1" v-for="(item, index) in user.repos" :key="item.name">
                     <template #title>
                         <div class="flex items-center">
-                            <el-tag class="mr-2" effect="plain" type="info">{{ index + 1 }}</el-tag>
-                            <h3 class="text-global">{{ item.name }}</h3>
+                            <el-tag effect="plain" type="info">{{ index + 1 }}</el-tag>
+                            <h3 class="text-global mx-4">{{ item.name }}</h3>
+                            <el-tag effect="plain" type="info">{{ item.language }}</el-tag>
                         </div>
+
                     </template>
                     <p class="text-global flex flex-col">
                         <span>仓库描述: {{ item.desc }} </span>

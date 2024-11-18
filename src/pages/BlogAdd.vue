@@ -1,6 +1,6 @@
 <script setup>
 import '@wangeditor/editor/dist/css/style.css'
-import { onBeforeUnmount, ref, shallowRef, onMounted, computed } from 'vue'
+import { onBeforeUnmount, ref, shallowRef, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import { uploadServer } from '../api/file'

@@ -40,11 +40,6 @@ const router = createRouter({
                     component: () => import("../pages/WorkAdd.vue"),
                 },
                 {
-                    path: "/usercate",
-                    name: "UserCate",
-                    component: () => import("../pages/UserCate.vue"),
-                },
-                {
                     path: "/botcate",
                     name: "BotCate",
                     component: () => import("../pages/BotCate.vue"),

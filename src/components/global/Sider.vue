@@ -33,15 +33,11 @@
                 <span class="ml-2">添加作品</span>
             </el-menu-item>
         </el-sub-menu>
-        <el-menu-item index="4" @click="navigateTo('/usercate')">
-            <el-icon><span class="icon-[solar--user-outline]"></span></el-icon>
-            <span class="ml-2">用户管理</span>
-        </el-menu-item>
         <el-menu-item index="5" @click="navigateTo('/botcate')">
             <el-icon><span class="icon-[ri--robot-2-line]"></span></el-icon>
             <span class="ml-2">Bot管理</span>
         </el-menu-item>
-        <el-menu-item index="5" @click="navigateTo('/user')">
+        <el-menu-item index="6" @click="navigateTo('/user')">
             <el-icon><span class="icon-[mynaui--home]"></span></el-icon>
             <span class="ml-2">用户中心</span>
         </el-menu-item>

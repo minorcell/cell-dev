@@ -98,9 +98,7 @@ const intro = (value) => {
 <template>
     <keep-alive>
         <div class="h-full w-[90vw] flex flex-col items-center">
-            <div class="w-full h-16 bg-slate-100 rounded">
-            </div>
-            <el-table :data="tableData" style="height: 85%; width: 100%; overflow-y: auto;" v-loading="isloading"
+            <el-table :data="tableData" style="height: 92%; width: 100%; overflow-y: auto;" v-loading="isloading"
                 table-layout="auto">
                 <el-table-column prop="id" label="ID" />
                 <el-table-column prop="title" label="标题" />
